@@ -3,9 +3,12 @@
 Intermediate level implementation of JSON Web Token for authorization in Node JS application.
 
 Features:
-Access token and refresh token stored in cookies from backend with httpOnly.
-Refresh token rotation as it also gets reissued while reissuing expired access token.
-Refresh token validation by storing the unique uuid of newly generated refresh token in the datababse.
+i. Access token and refresh token stored in cookies from backend with httpOnly.
+ii. Refresh token rotation as it also gets reissued while reissuing expired access token.
+iii. Refresh token validation by storing the unique uuid of newly generated refresh token in the datababse.
+iv. Password hashing with bcrypt.
+v. Incoming data validation with zod.
+vi. Rate limiting.
 
 To install:
 
