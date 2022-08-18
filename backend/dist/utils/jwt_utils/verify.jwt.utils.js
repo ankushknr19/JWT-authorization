@@ -13,14 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyRefreshToken = exports.verifyAccessToken = void 0;
-const dotenv_1 = __importDefault(require("dotenv"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const lodash_1 = require("lodash");
+const env_1 = require("../../config/env");
 const user_model_1 = require("../../models/user.model");
-dotenv_1.default.config();
-const verifyAccessToken = (token) => {
+const verifyAccessToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const decoded = jsonwebtoken_1.default.verify(token, process.env.accessTokenSecretKey);
+        const decoded = jsonwebtoken_1.default.verify(token, env_1.ACCESS_TOKEN_SECRET_KEY);
         return {
             valid: true,
             expired: false,
@@ -34,14 +33,12 @@ const verifyAccessToken = (token) => {
             decoded: null,
         };
     }
-};
+});
 exports.verifyAccessToken = verifyAccessToken;
 const verifyRefreshToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const decoded = jsonwebtoken_1.default.verify(token, process.env.refreshTokenSecretKey);
-        const dbSearch = yield user_model_1.userModel
-            .findById((0, lodash_1.get)(decoded, 'userId'))
-            .select('refreshTokenId');
+        const decoded = jsonwebtoken_1.default.verify(token, env_1.REFRESH_TOKEN_SECRET_KEY);
+        const dbSearch = yield user_model_1.UserModel.findById((0, lodash_1.get)(decoded, 'userId')).select('refreshTokenId');
         if (!dbSearch) {
             throw new Error();
         }

@@ -1,35 +1,41 @@
-import dotenv from 'dotenv'
-import { Request, Response } from 'express'
-import { userModel } from '../../models/user.model'
-import bcrypt from 'bcrypt'
+import createError from 'http-errors'
+import { NextFunction, Request, Response } from 'express'
+import { UserModel } from '../../models/user.model'
 import {
-	signJwtAccessToken,
-	signJwtRefreshToken,
+	signAccessTokenAsync,
+	signRefreshTokenAsync,
 } from '../../utils/jwt_utils/sign.jwt.utils'
+import { userLoginSchema } from '../../schemas/auth_schemas/login.schema'
 
-dotenv.config()
-
-export const userLoginController = async (req: Request, res: Response) => {
+export const userLoginController = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
 	try {
+		//validate incoming data
+		const result = await userLoginSchema.validateAsync(req.body)
 		//get data from request after validating
-		const { email, password } = req.body
+		const { email, password } = result
 
 		//find user using email
-		const user = await userModel.findOne({ email })
+		const user = await UserModel.findOne({ email })
 		if (!user) {
-			throw new Error('invalid email')
+			throw new createError.BadRequest('User not registered')
 		}
-		// check if password matches
-		const isValidPassword = await bcrypt.compare(password, user.password)
-		if (!isValidPassword) {
-			throw new Error('invalid password')
+		// check if raw password matches the ecrypted password
+		const isMatch = await user.comparePassword(password)
+		if (!isMatch) {
+			throw new createError.Unauthorized('Invalid email/password')
 		}
 
 		//sign access token
-		signJwtAccessToken(res, { userId: user._id })
+		await signAccessTokenAsync(res, {
+			userId: user._id,
+		})
 
 		//sign refresh token
-		const { refreshTokenId } = signJwtRefreshToken(res, user._id)
+		const { refreshTokenId } = await signRefreshTokenAsync(res, user._id)
 
 		//store refresh token id in database
 		user.refreshTokenId = refreshTokenId
@@ -40,6 +46,10 @@ export const userLoginController = async (req: Request, res: Response) => {
 			user: user._id,
 		})
 	} catch (error: any) {
-		res.status(404).send(error.message)
+		//do not send exact error message from validation
+		if (error.isJoi) {
+			return next(new createError.BadRequest('Invalid email/password'))
+		}
+		next(error)
 	}
 }

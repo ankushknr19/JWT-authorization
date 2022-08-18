@@ -1,14 +1,21 @@
-import { Request, Response } from 'express'
-import { userModel } from '../../models/user.model'
+import { NextFunction, Request, Response } from 'express'
+import createError from 'http-errors'
+import { UserModel } from '../../models/user.model'
 
-export const userLogoutController = async (_req: Request, res: Response) => {
+export const userLogoutController = async (
+	_req: Request,
+	res: Response,
+	next: NextFunction
+) => {
 	try {
 		const userId = res.locals.user.userId
-		const user = await userModel.findById(userId)
+		if (!userId) throw new createError.Unauthorized()
 
-		if (!user) throw new Error()
+		const user = await UserModel.findById(userId)
 
-		await userModel.updateOne(
+		if (!user) throw new createError.Unauthorized()
+
+		await UserModel.updateOne(
 			{ _id: userId },
 			{ $unset: { refreshTokenId: '' } }
 		)
@@ -19,6 +26,6 @@ export const userLogoutController = async (_req: Request, res: Response) => {
 
 		res.status(200).send('logged out successfully')
 	} catch (error: any) {
-		res.status(404).send('logout failed')
+		next(error)
 	}
 }

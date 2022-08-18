@@ -1,15 +1,18 @@
-import dotenv from 'dotenv'
 import express from 'express'
+import { PORT } from './config/env'
+import { connectDB } from './utils/db.connect'
 import helmet from 'helmet'
 import cookieParser from 'cookie-parser'
-import { connectDB } from './utils/db.connect'
+import createError from 'http-errors'
+import morgan from 'morgan'
+import { limiter } from './middlewares/rateLimit'
 import authRoutes from './routes/auth.routes'
 import userRoutes from './routes/user.routes'
-import { limiter } from './middlewares/rateLimit'
+import { errorHandler } from './middlewares/errorHandler'
 
-dotenv.config()
 const app = express()
 
+app.use(morgan('dev'))
 app.use(express.json())
 app.use(helmet())
 app.use(cookieParser())
@@ -24,8 +27,20 @@ app.get('/', (_req, res) => {
 	res.send('api is running...')
 })
 
-const PORT = process.env.PORT
+// if route doesnot exist
+app.use((_req, _res, next) => {
+	next(new createError.NotFound())
+})
 
-app.listen(PORT, () =>
-	console.log(`server is running on port http://localhost:${PORT}....`)
-)
+app.use(errorHandler)
+
+try {
+	app.listen(PORT, () =>
+		console.log(`server is running on port http://localhost:${PORT}....`)
+	)
+} catch (error: any) {
+	console.log('error during server connection')
+	process.exit()
+}
+
+export default app
