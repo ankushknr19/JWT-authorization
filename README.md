@@ -3,18 +3,21 @@
 Intermediate level implementation of JSON Web Token for authorization in Node JS application.
 
 Features:
-Access token and refresh token stored in cookies from backend with httpOnly.
-Refresh token rotation as it also gets reissued while reissuing expired access token.
-Refresh token validation by storing the unique uuid of newly generated refresh token in the datababse.
+
+1. Access token and refresh token stored in cookies from backend with httpOnly.
+2. Refresh token rotation as it also gets reissued while reissuing expired access token.
+3. Refresh token validation by storing the unique uuid of newly generated refresh token in the datababse.
+4. Password hashing with bcrypt.
+5. Incoming data validation with zod.
+6. Rate limiting.
 
 To install:
 
-1. clone it
-2. cd JWT-authorization
-3. cd backend
-4. pnpm install
-5. create MongoDB database with 'users' collection
-6. pnpm run dev
+1. clone it and open.
+2. $ cd backend
+3. $ pnpm install
+4. create MongoDB database with 'users' collection
+5. $ pnpm run dev
 
 Routes:
 
