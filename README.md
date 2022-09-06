@@ -13,11 +13,12 @@ Features:
 
 To install:
 
-1. clone it and open.
-2. $ cd backend
-3. $ pnpm install
-4. create MongoDB database with 'users' collection
-5. $ pnpm run dev
+1. clone it
+2. cd JWT-authorization
+3. cd backend
+4. pnpm install
+5. create MongoDB database with 'users' collection
+6. pnpm run dev
 
 Routes:
 
