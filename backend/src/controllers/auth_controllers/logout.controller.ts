@@ -2,6 +2,10 @@ import { NextFunction, Request, Response } from 'express'
 import createError from 'http-errors'
 import { UserModel } from '../../models/user.model'
 
+// @desc logout user
+// @route DELETE /api/auth/logout
+// @access private
+
 export const userLogoutController = async (
 	_req: Request,
 	res: Response,

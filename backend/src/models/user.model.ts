@@ -5,6 +5,7 @@ import { SALT_ROUND } from '../config/env'
 export interface UserInput {
 	email: string
 	password: string
+	role: string
 	refreshTokenId: string
 }
 
@@ -18,6 +19,12 @@ const UserSchema = new Schema(
 	{
 		email: { type: String, required: true, lowercase: true, unique: true },
 		password: { type: String, required: true },
+		role: {
+			type: String,
+			enum: ['user', 'admin', 'moderator'],
+			default: 'user',
+			required: true,
+		},
 		refreshTokenId: { type: String },
 	},
 	{ timestamps: true }

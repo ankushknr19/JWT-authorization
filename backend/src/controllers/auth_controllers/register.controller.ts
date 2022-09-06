@@ -5,7 +5,7 @@ import _ from 'lodash'
 import { userRegisterSchema } from '../../schemas/auth_schemas/register.schema'
 
 // @desc register a new user
-// @route POST /api/users
+// @route POST /api/auth/register
 // @access public
 
 export const userRegisterController = async (

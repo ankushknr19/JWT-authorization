@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.connectDB = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const env_1 = require("../config/env");
+const winstonLogger_1 = __importDefault(require("../middlewares/winstonLogger"));
 function connectDB() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -22,16 +23,15 @@ function connectDB() {
             yield mongoose_1.default.connect(dbURI);
         }
         catch (error) {
-            console.log('error during inital connection to mongodb database');
+            winstonLogger_1.default.error('error during inital connection to mongodb database');
             process.exit(1);
         }
-        mongoose_1.default.set('debug', true);
     });
 }
 exports.connectDB = connectDB;
-mongoose_1.default.connection.on('connected', () => console.log('Mongoose connected...'));
-mongoose_1.default.connection.on('error', (err) => console.log(err.message));
-mongoose_1.default.connection.on('disconnected', () => console.log('Mongoose disconnected.'));
+mongoose_1.default.connection.on('connected', () => winstonLogger_1.default.info('Mongoose connected...'));
+mongoose_1.default.connection.on('error', (err) => winstonLogger_1.default.error(err.message));
+mongoose_1.default.connection.on('disconnected', () => winstonLogger_1.default.warn('Mongoose disconnected.'));
 process.on('SIGINT', () => __awaiter(void 0, void 0, void 0, function* () {
     yield mongoose_1.default.connection.close();
 }));

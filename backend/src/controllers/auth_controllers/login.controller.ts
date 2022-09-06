@@ -44,6 +44,7 @@ export const userLoginController = async (
 		res.status(200).send({
 			message: 'Sucessfully logged in',
 			user: user._id,
+			role: user.role,
 		})
 	} catch (error: any) {
 		//do not send exact error message from validation

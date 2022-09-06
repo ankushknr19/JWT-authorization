@@ -8,5 +8,6 @@ const joi_1 = __importDefault(require("joi"));
 exports.userRegisterSchema = joi_1.default.object({
     email: joi_1.default.string().email().lowercase().required(),
     password: joi_1.default.string().min(6).max(30).required(),
+    role: joi_1.default.valid(['user', 'admin', 'moderator']),
 });
 //# sourceMappingURL=register.schema.js.map

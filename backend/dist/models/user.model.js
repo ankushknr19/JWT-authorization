@@ -42,6 +42,12 @@ const env_1 = require("../config/env");
 const UserSchema = new mongoose_1.Schema({
     email: { type: String, required: true, lowercase: true, unique: true },
     password: { type: String, required: true },
+    role: {
+        type: String,
+        enum: ['user', 'admin', 'moderator'],
+        default: 'user',
+        required: true,
+    },
     refreshTokenId: { type: String },
 }, { timestamps: true });
 UserSchema.pre('save', function (next) {

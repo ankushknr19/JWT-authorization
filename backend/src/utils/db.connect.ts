@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import { MONGO_COMPASS_URI } from '../config/env'
+import logger from '../middlewares/winstonLogger'
 
 export async function connectDB() {
 	try {
@@ -7,18 +8,17 @@ export async function connectDB() {
 
 		await mongoose.connect(dbURI)
 	} catch (error) {
-		console.log('error during inital connection to mongodb database')
+		logger.error('error during inital connection to mongodb database')
 		process.exit(1)
 	}
-	mongoose.set('debug', true)
 }
 
-mongoose.connection.on('connected', () => console.log('Mongoose connected...'))
+mongoose.connection.on('connected', () => logger.info('Mongoose connected...'))
 
-mongoose.connection.on('error', (err) => console.log(err.message))
+mongoose.connection.on('error', (err) => logger.error(err.message))
 
 mongoose.connection.on('disconnected', () =>
-	console.log('Mongoose disconnected.')
+	logger.warn('Mongoose disconnected.')
 )
 
 //ctrl+C gives SIGINT signal

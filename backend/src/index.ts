@@ -4,7 +4,7 @@ import { connectDB } from './utils/db.connect'
 import helmet from 'helmet'
 import cookieParser from 'cookie-parser'
 import createError from 'http-errors'
-import morgan from 'morgan'
+import logger from './middlewares/winstonLogger'
 import { limiter } from './middlewares/rateLimit'
 import authRoutes from './routes/auth.routes'
 import userRoutes from './routes/user.routes'
@@ -12,8 +12,7 @@ import { errorHandler } from './middlewares/errorHandler'
 
 const app = express()
 
-app.use(morgan('dev'))
-app.use(express.json())
+app.use(express.json({ limit: '2mb' }))
 app.use(helmet())
 app.use(cookieParser())
 app.use(limiter)
@@ -36,10 +35,10 @@ app.use(errorHandler)
 
 try {
 	app.listen(PORT, () =>
-		console.log(`server is running on port http://localhost:${PORT}....`)
+		logger.info(`server is running on port http://localhost:${PORT}....`)
 	)
 } catch (error: any) {
-	console.log('error during server connection')
+	logger.error('error during server connection')
 	process.exit()
 }
 

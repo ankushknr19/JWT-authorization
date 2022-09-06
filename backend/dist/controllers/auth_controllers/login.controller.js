@@ -38,6 +38,7 @@ const userLoginController = (req, res, next) => __awaiter(void 0, void 0, void 0
         res.status(200).send({
             message: 'Sucessfully logged in',
             user: user._id,
+            role: user.role,
         });
     }
     catch (error) {
