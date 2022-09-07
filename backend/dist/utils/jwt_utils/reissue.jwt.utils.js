@@ -12,13 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.reissueTokensAsync = void 0;
+exports.reissueTokens = void 0;
 const http_errors_1 = __importDefault(require("http-errors"));
 const lodash_1 = require("lodash");
 const user_model_1 = require("../../models/user.model");
 const sign_jwt_utils_1 = require("./sign.jwt.utils");
 const verify_jwt_utils_1 = require("./verify.jwt.utils");
-const reissueTokensAsync = (res, refreshToken) => {
+const reissueTokens = (res, refreshToken) => {
     return new Promise((resolve, reject) => __awaiter(void 0, void 0, void 0, function* () {
         const { decoded, expired } = yield (0, verify_jwt_utils_1.verifyRefreshToken)(refreshToken);
         if (!decoded || !(0, lodash_1.get)(decoded, 'userId') || expired) {
@@ -42,5 +42,5 @@ const reissueTokensAsync = (res, refreshToken) => {
             };
     }));
 };
-exports.reissueTokensAsync = reissueTokensAsync;
+exports.reissueTokens = reissueTokens;
 //# sourceMappingURL=reissue.jwt.utils.js.map

@@ -22,59 +22,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const bcrypt_1 = __importDefault(require("bcrypt"));
-const env_1 = require("../config/env");
 const UserSchema = new mongoose_1.Schema({
-    email: { type: String, required: true, lowercase: true, unique: true },
+    email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: {
-        type: String,
-        enum: ['user', 'admin', 'moderator'],
-        default: 'user',
-        required: true,
-    },
     refreshTokenId: { type: String },
 }, { timestamps: true });
-UserSchema.pre('save', function (next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            if (!this.isModified('password')) {
-                return next();
-            }
-            const saltRound = parseInt(env_1.SALT_ROUND);
-            const salt = yield bcrypt_1.default.genSalt(saltRound);
-            const hashedPassword = bcrypt_1.default.hashSync(this.password, salt);
-            this.password = hashedPassword;
-        }
-        catch (error) {
-            next(error);
-        }
-    });
-});
-UserSchema.methods.comparePassword = function (password) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            return yield bcrypt_1.default.compare(password, this.password);
-        }
-        catch (error) {
-            return false;
-        }
-    });
-};
 exports.UserModel = mongoose_1.default.model('User', UserSchema);
 //# sourceMappingURL=user.model.js.map

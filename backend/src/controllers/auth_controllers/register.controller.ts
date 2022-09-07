@@ -1,11 +1,13 @@
-import createError from 'http-errors'
+import dotenv from 'dotenv'
 import { NextFunction, Request, Response } from 'express'
 import { UserModel } from '../../models/user.model'
+import bcrypt from 'bcrypt'
 import _ from 'lodash'
-import { userRegisterSchema } from '../../schemas/auth_schemas/register.schema'
+
+dotenv.config()
 
 // @desc register a new user
-// @route POST /api/auth/register
+// @route POST /api/users
 // @access public
 
 export const userRegisterController = async (
@@ -15,31 +17,31 @@ export const userRegisterController = async (
 ) => {
 	try {
 		//get data from req.body and validate it
-		const result = await userRegisterSchema.validateAsync(req.body)
 
-		const { email, password } = result
-
+		//the request object is already validated before coming here
+		//using validate middleware in routes
+		const { email, password } = req.body
 		//check if email exists
 		const checkDB = await UserModel.findOne({ email }).select('email')
 		if (checkDB) {
-			throw new createError.Conflict('User already exists')
+			throw new Error('email already exists')
 		}
 
 		//encrypt the password
-		//done using pre hook inside user model
+		const saltRound = parseInt(process.env.SALT_ROUND!)
+		const salt = await bcrypt.genSalt(saltRound)
+		const hashedPassword = bcrypt.hashSync(password, salt)
 
 		//save in database
 		const newUser = await UserModel.create({
 			email,
-			password,
+			password: hashedPassword,
 		})
 
 		//send the response but omit the password
 		res.status(200).json(_.omit(newUser.toJSON(), 'password'))
 	} catch (error: any) {
-		//422 = unprocessable entity
-		if (error.isJoi) error.status = 422
-
+		// res.status(404).send(error.message)
 		next(error)
 	}
 }

@@ -1,8 +1,7 @@
 import { get } from 'lodash' //makes little bit safe to access property that we dont know if exists or not
 import { Request, Response, NextFunction } from 'express'
-import createError from 'http-errors'
 import { verifyAccessToken } from '../utils/jwt_utils/verify.jwt.utils'
-import { reissueTokensAsync } from '../utils/jwt_utils/reissue.jwt.utils'
+import { reissueTokens } from '../utils/jwt_utils/reissue.jwt.utils'
 
 export const verifyUser = async (
 	req: Request,
@@ -10,12 +9,13 @@ export const verifyUser = async (
 	next: NextFunction
 ) => {
 	try {
-		//get refresh token from cookies
+		//get access token from cookies
 		const cookies = get(req, 'cookies')
 		const accessToken = cookies.accessToken
 		const refreshToken = cookies.refreshToken
 
-		if (!accessToken || !refreshToken) throw new createError.Unauthorized()
+		//if the cookie has expired and/or there is no token in cookie
+		if (!accessToken) throw new Error('unauathorized, invalid token')
 
 		//verify access token
 		const { valid, decoded, expired } = await verifyAccessToken(accessToken)
@@ -29,16 +29,15 @@ export const verifyUser = async (
 		//refreshing expired access token
 		if (expired && refreshToken) {
 			//reissue tokens
-			const { newAccessToken } = await reissueTokensAsync(res, refreshToken)
+			const { newAccessToken } = await reissueTokens(res, refreshToken)
 
-			if (!newAccessToken) throw new createError.Unauthorized()
+			// console.log(newAccessToken)
 
+			if (!newAccessToken) throw new Error('reissue failed')
 			//verify new access token
 			const { valid, decoded, expired } = await verifyAccessToken(
 				newAccessToken
 			)
-
-			if (!valid || !decoded || expired) throw new createError.Unauthorized()
 
 			//put user in res.locals
 			if (valid && decoded && !expired) {
@@ -48,6 +47,6 @@ export const verifyUser = async (
 		}
 		next()
 	} catch (error: any) {
-		next(error)
+		res.status(401).send(error.message)
 	}
 }

@@ -8,13 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyUser = void 0;
 const lodash_1 = require("lodash");
-const http_errors_1 = __importDefault(require("http-errors"));
 const verify_jwt_utils_1 = require("../utils/jwt_utils/verify.jwt.utils");
 const reissue_jwt_utils_1 = require("../utils/jwt_utils/reissue.jwt.utils");
 const verifyUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -22,20 +18,18 @@ const verifyUser = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         const cookies = (0, lodash_1.get)(req, 'cookies');
         const accessToken = cookies.accessToken;
         const refreshToken = cookies.refreshToken;
-        if (!accessToken || !refreshToken)
-            throw new http_errors_1.default.Unauthorized();
+        if (!accessToken)
+            throw new Error('unauathorized, invalid token');
         const { valid, decoded, expired } = yield (0, verify_jwt_utils_1.verifyAccessToken)(accessToken);
         if (valid && decoded && !expired) {
             res.locals.user = decoded;
             return next();
         }
         if (expired && refreshToken) {
-            const { newAccessToken } = yield (0, reissue_jwt_utils_1.reissueTokensAsync)(res, refreshToken);
+            const { newAccessToken } = yield (0, reissue_jwt_utils_1.reissueTokens)(res, refreshToken);
             if (!newAccessToken)
-                throw new http_errors_1.default.Unauthorized();
+                throw new Error('reissue failed');
             const { valid, decoded, expired } = yield (0, verify_jwt_utils_1.verifyAccessToken)(newAccessToken);
-            if (!valid || !decoded || expired)
-                throw new http_errors_1.default.Unauthorized();
             if (valid && decoded && !expired) {
                 res.locals.user = decoded;
                 return next();
@@ -44,7 +38,7 @@ const verifyUser = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         next();
     }
     catch (error) {
-        next(error);
+        res.status(401).send(error.message);
     }
 });
 exports.verifyUser = verifyUser;

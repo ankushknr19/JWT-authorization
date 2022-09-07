@@ -5,7 +5,7 @@ import { UserModel } from '../../models/user.model'
 import { signAccessTokenAsync, signRefreshTokenAsync } from './sign.jwt.utils'
 import { verifyRefreshToken } from './verify.jwt.utils'
 
-export const reissueTokensAsync = (res: Response, refreshToken: string) => {
+export const reissueTokens = (res: Response, refreshToken: string) => {
 	return new Promise<{
 		newAccessToken: string | undefined
 		newRefreshToken: string | undefined

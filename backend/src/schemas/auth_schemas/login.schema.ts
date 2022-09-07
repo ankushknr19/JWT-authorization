@@ -1,6 +1,16 @@
-import Joi from 'joi'
+import { z } from 'zod'
 
-export const userLoginSchema = Joi.object({
-	email: Joi.string().email().lowercase().required(),
-	password: Joi.string().min(6).max(30).required(),
+export const userLoginSchema = z.object({
+	body: z.object({
+		email: z
+			.string({
+				required_error: 'Email is required',
+			})
+			.email('Not a valid email'),
+		password: z
+			.string({
+				required_error: 'Password is required',
+			})
+			.min(6, 'assword should be of at least 6 characters'),
+	}),
 })

@@ -9,8 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.JoiValidate = exports.validate = void 0;
-const validate = (schema) => (req, _res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.validate = void 0;
+const validate = (schema) => (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield schema.parseAsync({
             body: req.body,
@@ -20,22 +20,8 @@ const validate = (schema) => (req, _res, next) => __awaiter(void 0, void 0, void
         return next();
     }
     catch (error) {
-        error.issues[0].status = 422;
-        next(error.issues[0]);
+        return res.status(400).send(error.errors);
     }
 });
 exports.validate = validate;
-const JoiValidate = (schema) => (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        yield schema.validateAsync({
-            body: req.body,
-        });
-        return next();
-    }
-    catch (error) {
-        error.status = 422;
-        res.send(error);
-    }
-});
-exports.JoiValidate = JoiValidate;
 //# sourceMappingURL=validateResource.js.map

@@ -75,7 +75,7 @@ export const signAccessTokenAsync = (res: Response, payload: object) => {
 	})
 }
 //sign jwt refresh token async
-export const signRefreshTokenAsync = (res: Response, userId: string) => {
+export const signRefreshTokenAsync = (res: Response, userId: any) => {
 	return new Promise<{
 		refreshToken: string | undefined
 		refreshTokenId: string

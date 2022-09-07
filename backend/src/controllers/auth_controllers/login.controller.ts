@@ -1,38 +1,32 @@
-import createError from 'http-errors'
-import { NextFunction, Request, Response } from 'express'
+import dotenv from 'dotenv'
+import { Request, Response } from 'express'
 import { UserModel } from '../../models/user.model'
+import bcrypt from 'bcrypt'
 import {
 	signAccessTokenAsync,
 	signRefreshTokenAsync,
 } from '../../utils/jwt_utils/sign.jwt.utils'
-import { userLoginSchema } from '../../schemas/auth_schemas/login.schema'
 
-export const userLoginController = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
+dotenv.config()
+
+export const userLoginController = async (req: Request, res: Response) => {
 	try {
-		//validate incoming data
-		const result = await userLoginSchema.validateAsync(req.body)
 		//get data from request after validating
-		const { email, password } = result
+		const { email, password } = req.body
 
 		//find user using email
 		const user = await UserModel.findOne({ email })
 		if (!user) {
-			throw new createError.BadRequest('User not registered')
+			throw new Error('invalid email')
 		}
-		// check if raw password matches the ecrypted password
-		const isMatch = await user.comparePassword(password)
-		if (!isMatch) {
-			throw new createError.Unauthorized('Invalid email/password')
+		// check if password matches
+		const isValidPassword = await bcrypt.compare(password, user.password)
+		if (!isValidPassword) {
+			throw new Error('invalid password')
 		}
 
 		//sign access token
-		await signAccessTokenAsync(res, {
-			userId: user._id,
-		})
+		await signAccessTokenAsync(res, { userId: user._id })
 
 		//sign refresh token
 		const { refreshTokenId } = await signRefreshTokenAsync(res, user._id)
@@ -44,13 +38,8 @@ export const userLoginController = async (
 		res.status(200).send({
 			message: 'Sucessfully logged in',
 			user: user._id,
-			role: user.role,
 		})
 	} catch (error: any) {
-		//do not send exact error message from validation
-		if (error.isJoi) {
-			return next(new createError.BadRequest('Invalid email/password'))
-		}
-		next(error)
+		res.status(404).send(error.message)
 	}
 }
