@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
+import createHttpError from 'http-errors'
 import { UserModel } from '../../models/user.model'
 
 // @desc logout user
@@ -12,10 +13,10 @@ export const userLogoutController = async (
 ) => {
 	try {
 		const userId = res.locals.user.userId
-		if (!userId) throw new Error('unauthorized')
+		if (!userId) throw new createHttpError.Unauthorized()
 		const user = await UserModel.findById(userId)
 
-		if (!user) throw new Error('unauthorized')
+		if (!user) throw new createHttpError.Unauthorized()
 		await UserModel.updateOne(
 			{ _id: userId },
 			{ $unset: { refreshTokenId: '' } }

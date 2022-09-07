@@ -1,5 +1,5 @@
 import { Response } from 'express'
-import createError from 'http-errors'
+import createHttpError from 'http-errors'
 import { get } from 'lodash'
 import { UserModel } from '../../models/user.model'
 import { signAccessTokenAsync, signRefreshTokenAsync } from './sign.jwt.utils'
@@ -13,14 +13,14 @@ export const reissueTokens = (res: Response, refreshToken: string) => {
 		const { decoded, expired } = await verifyRefreshToken(refreshToken)
 		//if refresh token verification fails
 		if (!decoded || !get(decoded, 'userId') || expired) {
-			return reject(new createError.Unauthorized())
+			return reject(new createHttpError.Unauthorized())
 		}
 
 		//find user
 		const user = await UserModel.findById(get(decoded, 'userId'))
 
 		if (!user) {
-			return reject(new createError.Unauthorized())
+			return reject(new createHttpError.Unauthorized())
 		}
 
 		//sign new tokens
@@ -37,7 +37,7 @@ export const reissueTokens = (res: Response, refreshToken: string) => {
 		resolve({ newAccessToken, newRefreshToken }),
 			(err: any) => {
 				if (err) {
-					return reject(new createError.InternalServerError())
+					return reject(new createHttpError.InternalServerError())
 				}
 			}
 	})

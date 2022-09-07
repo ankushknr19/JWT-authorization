@@ -1,28 +1,33 @@
-import dotenv from 'dotenv'
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { UserModel } from '../../models/user.model'
-import bcrypt from 'bcrypt'
 import {
 	signAccessTokenAsync,
 	signRefreshTokenAsync,
 } from '../../utils/jwt_utils/sign.jwt.utils'
+import { userLoginSchema } from '../../schemas/auth_schemas/login.schema'
+import createHttpError from 'http-errors'
 
-dotenv.config()
-
-export const userLoginController = async (req: Request, res: Response) => {
+export const userLoginController = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
 	try {
+		//validate data
+		const result = await userLoginSchema.validateAsync(req.body)
+
 		//get data from request after validating
-		const { email, password } = req.body
+		const { email, password } = result
 
 		//find user using email
 		const user = await UserModel.findOne({ email })
 		if (!user) {
-			throw new Error('invalid email')
+			throw new createHttpError.BadRequest('User not registered')
 		}
-		// check if password matches
-		const isValidPassword = await bcrypt.compare(password, user.password)
-		if (!isValidPassword) {
-			throw new Error('invalid password')
+		// check if raw password matches the ecrypted password
+		const isMatch = await user.comparePassword(password)
+		if (!isMatch) {
+			throw new createHttpError.Unauthorized('Invalid email/password')
 		}
 
 		//sign access token
@@ -38,8 +43,13 @@ export const userLoginController = async (req: Request, res: Response) => {
 		res.status(200).send({
 			message: 'Sucessfully logged in',
 			user: user._id,
+			role: user.role,
 		})
 	} catch (error: any) {
-		res.status(404).send(error.message)
+		//do not send exact error message from validation
+		if (error.isJoi) {
+			return next(new createHttpError.BadRequest('Invalid email/password'))
+		}
+		next(error)
 	}
 }

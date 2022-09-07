@@ -13,28 +13,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userRegisterController = void 0;
-const dotenv_1 = __importDefault(require("dotenv"));
 const user_model_1 = require("../../models/user.model");
-const bcrypt_1 = __importDefault(require("bcrypt"));
 const lodash_1 = __importDefault(require("lodash"));
-dotenv_1.default.config();
+const http_errors_1 = __importDefault(require("http-errors"));
+const register_schema_1 = require("../../schemas/auth_schemas/register.schema");
 const userRegisterController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { email, password } = req.body;
+        const result = yield register_schema_1.userRegisterSchema.validateAsync(req.body);
+        const { email, password, role } = result;
         const checkDB = yield user_model_1.UserModel.findOne({ email }).select('email');
         if (checkDB) {
-            throw new Error('email already exists');
+            throw new http_errors_1.default.Conflict('email already exists');
         }
-        const saltRound = parseInt(process.env.SALT_ROUND);
-        const salt = yield bcrypt_1.default.genSalt(saltRound);
-        const hashedPassword = bcrypt_1.default.hashSync(password, salt);
         const newUser = yield user_model_1.UserModel.create({
             email,
-            password: hashedPassword,
+            password,
+            role,
         });
         res.status(200).json(lodash_1.default.omit(newUser.toJSON(), 'password'));
     }
     catch (error) {
+        if (error.isJoi)
+            error.status = 422;
         next(error);
     }
 });

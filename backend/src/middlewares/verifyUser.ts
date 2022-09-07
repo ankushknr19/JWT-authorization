@@ -2,6 +2,7 @@ import { get } from 'lodash' //makes little bit safe to access property that we 
 import { Request, Response, NextFunction } from 'express'
 import { verifyAccessToken } from '../utils/jwt_utils/verify.jwt.utils'
 import { reissueTokens } from '../utils/jwt_utils/reissue.jwt.utils'
+import createHttpError from 'http-errors'
 
 export const verifyUser = async (
 	req: Request,
@@ -31,13 +32,14 @@ export const verifyUser = async (
 			//reissue tokens
 			const { newAccessToken } = await reissueTokens(res, refreshToken)
 
-			// console.log(newAccessToken)
-
-			if (!newAccessToken) throw new Error('reissue failed')
+			if (!newAccessToken) throw new createHttpError.Unauthorized()
 			//verify new access token
 			const { valid, decoded, expired } = await verifyAccessToken(
 				newAccessToken
 			)
+
+			if (!valid || !decoded || expired)
+				throw new createHttpError.Unauthorized()
 
 			//put user in res.locals
 			if (valid && decoded && !expired) {
@@ -47,6 +49,6 @@ export const verifyUser = async (
 		}
 		next()
 	} catch (error: any) {
-		res.status(401).send(error.message)
+		next(error)
 	}
 }
