@@ -40,6 +40,7 @@ const mongoose_1 = __importStar(require("mongoose"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const env_1 = require("../config/env");
 const UserSchema = new mongoose_1.Schema({
+    username: { type: String, required: true },
     email: { type: String, required: true, lowercase: true, unique: true },
     password: { type: String, required: true },
     role: {

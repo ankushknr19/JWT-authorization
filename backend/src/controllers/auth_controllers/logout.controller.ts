@@ -14,7 +14,7 @@ export const userLogoutController = async (
 	try {
 		const userId = res.locals.user.userId
 		if (!userId) throw new createHttpError.Unauthorized()
-		const user = await UserModel.findById(userId)
+		const user = await UserModel.findById(userId).select('-password')
 
 		if (!user) throw new createHttpError.Unauthorized()
 		await UserModel.updateOne(
@@ -26,7 +26,7 @@ export const userLogoutController = async (
 
 		res.clearCookie('refreshToken', { path: '/', httpOnly: true })
 
-		res.status(200).send('logged out successfully')
+		res.redirect('/')
 	} catch (error: any) {
 		next(error)
 	}

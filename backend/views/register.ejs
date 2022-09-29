@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>JWT Auth</title>
+	</head>
+	<body>
+		<main>
+			<section>
+				<a href="/">Home</a>
+				<h2>Register</h2>
+				<% if (error) { %>
+				<p><%= error?.message %></p>
+				<% } %>
+				<div>
+					<form action="/api/auth/register" method="POST">
+						<div>
+							<label for="username" name="username" id="username"
+								>Username</label
+							>
+							<input
+								type="username"
+								name="username"
+								id="username"
+								required
+							/>
+						</div>
+						<div>
+							<label for="email" name="email" id="email">Email</label>
+							<input type="email" name="email" id="email" required />
+						</div>
+						<div>
+							<label for="password" name="password" id="password"
+								>Password</label
+							>
+							<input
+								type="password"
+								name="password"
+								id="password"
+								required
+							/>
+						</div>
+						<button type="submit">Register</button>
+					</form>
+				</div>
+			</section>
+		</main>
+	</body>
+</html>

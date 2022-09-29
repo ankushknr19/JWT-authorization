@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express'
+import { Request, Response } from 'express'
 import { UserModel } from '../../models/user.model'
 import {
 	signAccessTokenAsync,
@@ -7,11 +7,7 @@ import {
 import { userLoginSchema } from '../../schemas/auth_schemas/login.schema'
 import createHttpError from 'http-errors'
 
-export const userLoginController = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
+export const userLoginController = async (req: Request, res: Response) => {
 	try {
 		//validate data
 		const result = await userLoginSchema.validateAsync(req.body)
@@ -21,6 +17,7 @@ export const userLoginController = async (
 
 		//find user using email
 		const user = await UserModel.findOne({ email })
+
 		if (!user) {
 			throw new createHttpError.BadRequest('User not registered')
 		}
@@ -40,16 +37,23 @@ export const userLoginController = async (
 		user.refreshTokenId = refreshTokenId
 		await user.save()
 
-		res.status(200).send({
-			message: 'Sucessfully logged in',
-			user: user._id,
-			role: user.role,
-		})
+		// res.status(200).send({
+		// 	message: 'Sucessfully logged in',
+		// 	user: user._id,
+		// 	username: user.username,
+		// 	role: user.role,
+		// })
+		res.redirect('/views/profile')
 	} catch (error: any) {
 		//do not send exact error message from validation
+		// if (error.isJoi) {
+		// 	return next(new createHttpError.BadRequest('Invalid email/password'))
+		// }
+		// next(error)
 		if (error.isJoi) {
-			return next(new createHttpError.BadRequest('Invalid email/password'))
+			error.status = 400
+			error.message = 'Invalid email/password'
 		}
-		next(error)
+		res.render('login', { messageObject: error })
 	}
 }

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>JWT Auth</title>
+	</head>
+	<body>
+		<main>
+			<section>
+				<a href="/">Home</a>
+				<h2>Welcome!</h2>
+				<div>
+					<% if (user) { %>
+					<a href="/views/profile">
+						<button>Go to profile</button>
+					</a>
+					<% }else{ %>
+
+					<a href="/views/login">
+						<button>Login</button>
+					</a>
+					<a href="/views/register">
+						<button>Register</button>
+					</a>
+					<% } %>
+				</div>
+			</section>
+		</main>
+	</body>
+</html>

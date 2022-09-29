@@ -20,13 +20,13 @@ const userLogoutController = (_req, res, next) => __awaiter(void 0, void 0, void
         const userId = res.locals.user.userId;
         if (!userId)
             throw new http_errors_1.default.Unauthorized();
-        const user = yield user_model_1.UserModel.findById(userId);
+        const user = yield user_model_1.UserModel.findById(userId).select('-password');
         if (!user)
             throw new http_errors_1.default.Unauthorized();
         yield user_model_1.UserModel.updateOne({ _id: userId }, { $unset: { refreshTokenId: '' } });
         res.clearCookie('accessToken', { path: '/', httpOnly: true });
         res.clearCookie('refreshToken', { path: '/', httpOnly: true });
-        res.status(200).send('logged out successfully');
+        res.redirect('/');
     }
     catch (error) {
         next(error);

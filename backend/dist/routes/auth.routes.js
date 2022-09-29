@@ -7,10 +7,10 @@ const express_1 = __importDefault(require("express"));
 const login_controller_1 = require("../controllers/auth_controllers/login.controller");
 const register_controller_1 = require("../controllers/auth_controllers/register.controller");
 const logout_controller_1 = require("../controllers/auth_controllers/logout.controller");
-const verifyUser_1 = require("../middlewares/verifyUser");
+const requireUser_1 = require("../middlewares/requireUser");
 const router = express_1.default.Router();
 router.post('/login', login_controller_1.userLoginController);
-router.post('/register', register_controller_1.userRegisterController);
-router.delete('/logout', verifyUser_1.verifyUser, logout_controller_1.userLogoutController);
+router.route('/register').post(register_controller_1.userRegisterController);
+router.post('/logout', requireUser_1.requireUser, logout_controller_1.userLogoutController);
 exports.default = router;
 //# sourceMappingURL=auth.routes.js.map

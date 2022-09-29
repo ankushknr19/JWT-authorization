@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt'
 import { SALT_ROUND } from '../config/env'
 
 export interface UserInput {
+	username: string
 	email: string
 	password: string
 	role: string
@@ -15,8 +16,9 @@ export interface UserDocument extends UserInput, mongoose.Document {
 	comparePassword(password: string): Promise<Boolean>
 }
 
-const UserSchema = new Schema(
+const UserSchema = new Schema<UserDocument>(
 	{
+		username: { type: String, required: true },
 		email: { type: String, required: true, lowercase: true, unique: true },
 		password: { type: String, required: true },
 		role: {

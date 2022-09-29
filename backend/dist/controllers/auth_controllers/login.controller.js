@@ -17,7 +17,7 @@ const user_model_1 = require("../../models/user.model");
 const sign_jwt_utils_1 = require("../../utils/jwt_utils/sign.jwt.utils");
 const login_schema_1 = require("../../schemas/auth_schemas/login.schema");
 const http_errors_1 = __importDefault(require("http-errors"));
-const userLoginController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const userLoginController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const result = yield login_schema_1.userLoginSchema.validateAsync(req.body);
         const { email, password } = result;
@@ -33,17 +33,14 @@ const userLoginController = (req, res, next) => __awaiter(void 0, void 0, void 0
         const { refreshTokenId } = yield (0, sign_jwt_utils_1.signRefreshTokenAsync)(res, user._id);
         user.refreshTokenId = refreshTokenId;
         yield user.save();
-        res.status(200).send({
-            message: 'Sucessfully logged in',
-            user: user._id,
-            role: user.role,
-        });
+        res.redirect('/views/profile');
     }
     catch (error) {
         if (error.isJoi) {
-            return next(new http_errors_1.default.BadRequest('Invalid email/password'));
+            error.status = 400;
+            error.message = 'Invalid email/password';
         }
-        next(error);
+        res.render('login', { messageObject: error });
     }
 });
 exports.userLoginController = userLoginController;

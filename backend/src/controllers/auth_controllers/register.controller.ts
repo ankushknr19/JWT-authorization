@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express'
+import { Request, Response } from 'express'
 import { UserModel } from '../../models/user.model'
 import _ from 'lodash'
 import createHttpError from 'http-errors'
@@ -8,17 +8,13 @@ import { userRegisterSchema } from '../../schemas/auth_schemas/register.schema'
 // @route POST /api/users
 // @access public
 
-export const userRegisterController = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
+export const userRegisterController = async (req: Request, res: Response) => {
 	try {
 		//get data from req.body and validate it
 		const result = await userRegisterSchema.validateAsync(req.body)
 
 		//using validate middleware in routes
-		const { email, password, role } = result
+		const { username, email, password, role } = result
 
 		//check if email exists
 		const checkDB = await UserModel.findOne({ email }).select('email')
@@ -30,17 +26,23 @@ export const userRegisterController = async (
 		//done using pre hook inside user model
 
 		//save in database
-		const newUser = await UserModel.create({
+		await UserModel.create({
+			username,
 			email,
 			password,
 			role,
 		})
 
 		//send the response but omit the password
-		res.status(200).json(_.omit(newUser.toJSON(), 'password'))
+		// res.status(200).json(_.omit(newUser.toJSON(), 'password'))
+
+		const messageObject = {
+			status: 200,
+			message: 'User registered successfully! Please login.',
+		}
+		res.render('login', { messageObject })
 	} catch (error: any) {
 		if (error.isJoi) error.status = 422
-
-		next(error)
+		res.render('register', { error })
 	}
 }

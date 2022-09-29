@@ -23,7 +23,7 @@ const verifyUser = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         const accessToken = cookies.accessToken;
         const refreshToken = cookies.refreshToken;
         if (!accessToken)
-            throw new Error('unauathorized, invalid token');
+            throw new http_errors_1.default.Unauthorized();
         const { valid, decoded, expired } = yield (0, verify_jwt_utils_1.verifyAccessToken)(accessToken);
         if (valid && decoded && !expired) {
             res.locals.user = decoded;

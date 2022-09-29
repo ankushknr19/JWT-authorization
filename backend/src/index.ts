@@ -4,26 +4,31 @@ import { connectDB } from './utils/db.connect'
 import helmet from 'helmet'
 import cookieParser from 'cookie-parser'
 import authRoutes from './routes/auth.routes'
-import userRoutes from './routes/user.routes'
+import viewRoutes from './routes/view.routes'
 import { errorHandler } from './middlewares/errorHandler'
 import morganLogger from './middlewares/morganLogger'
 import createHttpError from 'http-errors'
 import logger from './middlewares/winstonLogger'
+import { deserialzeUser } from './middlewares/deserializeUser'
 
 const app = express()
 
-app.use(express.json({ limit: '2mb' }))
 app.use(helmet())
+app.use(express.json({ limit: '2mb' }))
+app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
+app.use(deserialzeUser)
 app.use(morganLogger)
 
 connectDB()
 
+app.set('view engine', 'ejs')
+
 app.use('/api/auth', authRoutes)
-app.use('/api/me', userRoutes)
+app.use('/views', viewRoutes)
 
 app.get('/', (_req, res) => {
-	res.send('api is running...')
+	res.redirect('/views/home')
 })
 
 // if route doesnot exist
