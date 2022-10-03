@@ -42,8 +42,7 @@ UserSchema.pre('save', async function (next) {
 		if (!this.isModified('password')) {
 			return next()
 		}
-		const saltRound = parseInt(SALT_ROUND!)
-		const salt = await bcrypt.genSalt(saltRound)
+		const salt = await bcrypt.genSalt(SALT_ROUND)
 		const hashedPassword = bcrypt.hashSync(this.password, salt)
 		this.password = hashedPassword
 	} catch (error: any) {

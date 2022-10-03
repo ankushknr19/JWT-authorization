@@ -57,8 +57,7 @@ UserSchema.pre('save', function (next) {
             if (!this.isModified('password')) {
                 return next();
             }
-            const saltRound = parseInt(env_1.SALT_ROUND);
-            const salt = yield bcrypt_1.default.genSalt(saltRound);
+            const salt = yield bcrypt_1.default.genSalt(env_1.SALT_ROUND);
             const hashedPassword = bcrypt_1.default.hashSync(this.password, salt);
             this.password = hashedPassword;
         }

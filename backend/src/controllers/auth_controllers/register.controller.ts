@@ -13,7 +13,7 @@ export const userRegisterController = async (req: Request, res: Response) => {
 		//get data from req.body and validate it
 		const result = await userRegisterSchema.validateAsync(req.body)
 
-		//using validate middleware in routes
+		//desctructure data
 		const { username, email, password, role } = result
 
 		//check if email exists

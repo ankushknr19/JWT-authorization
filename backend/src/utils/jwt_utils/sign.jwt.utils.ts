@@ -14,9 +14,9 @@ export const signAccessTokenAsync = (res: Response, payload: object) => {
 	return new Promise<string | undefined>((resolve, reject) => {
 		jwt.sign(
 			payload,
-			ACCESS_TOKEN_SECRET_KEY!,
+			ACCESS_TOKEN_SECRET_KEY,
 			{
-				expiresIn: ACCESS_TOKEN_TIME_TO_LIVE!,
+				expiresIn: ACCESS_TOKEN_TIME_TO_LIVE,
 			},
 			(err, accessToken) => {
 				if (err) {
@@ -44,9 +44,9 @@ export const signRefreshTokenAsync = (res: Response, userId: any) => {
 				id: refreshTokenId,
 				userId,
 			},
-			REFRESH_TOKEN_SECRET_KEY!,
+			REFRESH_TOKEN_SECRET_KEY,
 			{
-				expiresIn: REFRESH_TOKEN_TIME_TO_LIVE!,
+				expiresIn: REFRESH_TOKEN_TIME_TO_LIVE,
 			},
 			(err, refreshToken) => {
 				if (err) {

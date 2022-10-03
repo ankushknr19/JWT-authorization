@@ -1,15 +1,15 @@
 import mongoose from 'mongoose'
-import { MONGO_COMPASS_URI } from '../config/env'
+import { MONGO_URI } from './env'
 import logger from '../middlewares/winstonLogger'
 
 export async function connectDB() {
 	try {
-		const dbURI: string = MONGO_COMPASS_URI || ''
+		const dbURI: string = MONGO_URI || ''
 
 		await mongoose.connect(dbURI)
 	} catch (error) {
 		logger.error('error during inital connection to mongodb database')
-		process.exit(1)
+		process.exit()
 	}
 }
 
